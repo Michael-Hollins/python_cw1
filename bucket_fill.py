@@ -81,12 +81,11 @@ def show_image(image):
 
 
 def validate_seed_point(image, seed_point):
-    """ Check that the starting seed given is valid. If so, do nothing. If not, return the image.
+    """ Check that the starting seed given is valid. If so, return True, else False.
     
     Invalid starting seeds would be out of the grid range, non-integer values and
     starting on a boundary value. This function is a series of logical tests. If 
-    all pass, the function does nothing. If there's a fail, it returns the original 
-    image.
+    all pass, the function returns True, otherwise it's False.
     
     Args:
         image (list) : a 2D nested list representation of an image, where
@@ -96,8 +95,7 @@ def validate_seed_point(image, seed_point):
                        coordinates of the seed point to start filling
                        
     Returns:
-        image (list) : if any validity test fails
-        (None) : if the seed points are valid
+        (bool) : true if all tests pass, else false
 
     """
     
@@ -112,24 +110,23 @@ def validate_seed_point(image, seed_point):
     # First, check integer values
     seed_row_is_integer = isinstance(seed_row, int)
     seed_col_is_integer = isinstance(seed_col, int)
-    if not seed_row_is_integer and seed_col_is_integer:
+    if not (seed_row_is_integer and seed_col_is_integer):
         print("Starting point is not a tuple of integers.")
-        show_image(image)
-        return image
+        return False
     
     # Second, check we're in the grid
     seed_row_in_grid = seed_row in list(range(0, n_rows))
     seed_col_in_grid = seed_col in list(range(0, n_cols))
-    if not seed_row_in_grid and seed_col_in_grid:
+    if not (seed_row_in_grid and seed_col_in_grid):
         print("Starting point is outside the grid range.")
-        show_image(image)
-        return image       
+        return False       
     
     # Third, check we're on an unfilled pixel
     if not image[seed_row][seed_col] == 0:
         print("Starting point is on a boundary.")
-        show_image(image)
-        return image
+        return False
+        
+    return True
  
 def get_bordering_pixels(image, coords):
    """ We zoom in on a pixel and get the characteristics of its neigbbours.
@@ -192,20 +189,43 @@ def get_bordering_pixels(image, coords):
 
 
 def fill_surrounding_pixels(image, coords):
+    """ Recursive function to replace 0 with 2 by checking neighbours.
     
+    We begin by getting the value of the pixel where we start. 
+    If it's zero, we replace it with a two i.e. we fill in the pixel.    
+    We then check the neighbouring pixels. If one has a zero value, move 
+    to that pixel and start the process again by recursion. 
+    We return the image when all surrounding pixels are filled or out of bounds.
+    
+    Args:
+        image (list) : a 2D nested list representation of an image, where
+                       0 represents an unfilled pixel, and
+                       1 represents a boundary pixel
+        coords (tuple) : a 2-element tuple representing the (row, col) 
+                       coordinates of the seed point to start filling
+                       
+    Returns:
+        (list) : The image filled out from the starting seed point.
+    
+    """
+    
+    # If the pixel value is unfilled, fill it.
     row = coords[0]
     col = coords[1]
     if image[row][col] == 0:
         image[row][col] = 2
     
+    # Check the values and coordinates of adjacent pixels.
     adjacent_pixels = get_bordering_pixels(image, coords)
     
+    # If any neighbouring pixels are unfilled, move to them and restart the process.
     for pixel in ["left_pixel", "up_pixel", "right_pixel", "down_pixel"]:     
         if adjacent_pixels[pixel]["value"] == 0:
             row = adjacent_pixels[pixel]["position"][0]
             col = adjacent_pixels[pixel]["position"][1]            
-            image[row][col] = 2
             fill_surrounding_pixels(coords = (row, col), image = image)
+    
+    # Otherwise, return the filled image
     return image      
 
     
@@ -231,30 +251,26 @@ def fill(image, seed_point):
                2 represents a filled pixel
     """
 
-    # First, check we have a valid starting point
-    validate_seed_point(image, seed_point)
+    # First, check we have a valid starting point. If not, return the image.
+    if validate_seed_point(image, seed_point) is False:
+        return image
     
     # If so, fill the empty pixels and return the new image
     image = fill_surrounding_pixels(image, seed_point)
-
-    return image
+    show_image(image)
     
-def example_fill():
-    image = load_image("data/bar.txt")
+def example_fill(image_example, seed_example):
+    image = load_image(image_example)
 
     print("Before filling:")
     show_image(image)
 
-    image = fill(image=image, seed_point=(7, 3))
+    image = fill(image=image, seed_point=seed_example)
 
     print("-" * 25)
     print("After filling:")
     show_image(image)
 
-"""
+
 if __name__ == '__main__':
-    example_fill()
-"""
-
-
-show_image(fill(load_image("data/snake.txt"), (12,6)))
+    example_fill(image_example = "data/smiley.txt", seed_example = (5,6))
