@@ -257,7 +257,7 @@ def fill(image, seed_point):
     
     # If so, fill the empty pixels and return the new image
     image = fill_surrounding_pixels(image, seed_point)
-    show_image(image)
+    return image
     
 def example_fill(image_example, seed_example):
     image = load_image(image_example)

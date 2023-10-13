@@ -37,15 +37,15 @@ def test_fill_fails():
 test_fill_fails() # should stay silent
 
 def test_pattern():
-    fill(image = load_image("data/bar.txt"), seed_point = (7,3))
-    fill(image = load_image("data/smiley.txt"), seed_point = (5,6))
-    fill(image = load_image("data/snake.txt"), seed_point = (0,0))
-    fill(image = load_image("data/big_square.txt"), seed_point = (0,0))
-    fill(image = load_image("data/chessboard.txt"), seed_point = (0,0))
-    fill(image = load_image("data/diamond.txt"), seed_point = (2,2))
-    fill(image = load_image("data/filled_grid.txt"), seed_point = (0,0)) # should print error message
-    fill(image = load_image("data/line.txt"), seed_point = (0,4))
-    fill(image = load_image("data/single_pixel.txt"), seed_point = (0,0))
+    example_fill("data/bar.txt", (1,1))
+    example_fill("data/smiley.txt", (5,6))
+    example_fill("data/snake.txt", (0,0))
+    example_fill("data/big_square.txt", (24,24))
+    example_fill("data/chessboard.txt", (0,0))
+    example_fill("data/diamond.txt", (2,2))
+    example_fill("data/filled_grid.txt", (1,1)) # should return error message
+    example_fill("data/line.txt", (0,4))
+    example_fill("data/single_pixel.txt", (0,0))
     
 if __name__ == '__main__':
     # Let's try filling in some pictures!
